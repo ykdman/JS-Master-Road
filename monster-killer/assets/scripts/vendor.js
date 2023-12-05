@@ -37,7 +37,6 @@ function resetGame(value) {
 
 function removeBonusLife() {
   bonusLifeEl.parentNode.removeChild(bonusLifeEl);
-  bonusLifeEl.parentNode.a
 }
 
 function setPlayerHealth(health) {
