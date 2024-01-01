@@ -168,7 +168,9 @@ function healHandler() {
   roundCheck();
 }
 function printLog() {
-  console.log(battleLog);
+  for (let i = battleLog.length - 1; i > 0; i--) {
+    console.log(battleLog[i]);
+  }
 }
 
 /** Event Listner */
