@@ -5,11 +5,17 @@ const backDropEl = document.getElementById('backdrop');
 const modalCancelBtn = document.querySelector(
   '#add-modal .modal__actions .btn.btn--passive'
 );
+const deleteModal = document.getElementById('delete-modal');
+
 const userInputElements = addMovieModal.querySelectorAll('input');
 const modalAddMovieBtn = modalCancelBtn.nextElementSibling;
 const entryTextEl = document.getElementById('entry-text');
 
 const movies = [];
+
+const toggleDeleteModal = () => {
+  deleteModal.classList.toggle('visible');
+};
 
 const updateEntryText = () => {
   if (movies.length === 0) {
@@ -19,7 +25,35 @@ const updateEntryText = () => {
   }
 };
 
-const renderNewMovie = (title, imageUrl, rating) => {
+const deleteMovie = (movieId) => {
+  console.log(`target id :${movieId}`);
+  let movieIndex = movies.findIndex((x) => x.id === movieId);
+  console.log(`${movieIndex}`);
+  const movieListEl = document.getElementById('movie-list');
+  // console.log(`Remove Movie : '${movies[movieIndex]['title']}'`);
+  movies.splice(movieIndex, 1);
+  movieListEl.children[movieIndex].remove();
+  if (deleteModal.classList.contains('visible')) {
+    toggleDeleteModal();
+  }
+};
+
+const deleteMovieHandler = (movieId) => {
+  deleteModal.classList.toggle('visible');
+  const deleteModalCancelBtn = deleteModal.querySelector('.btn.btn--passive');
+  let deleteModalYesBtn = deleteModal.querySelector('.btn.btn--danger');
+
+  // deleteBtn Replace (protect Stacking Listner)
+  deleteModalYesBtn.replaceWith(deleteModalYesBtn.cloneNode(true));
+  deleteModalYesBtn = deleteModal.querySelector('.btn.btn--danger');
+
+  deleteModalCancelBtn.removeEventListener('click', toggleDeleteModal);
+  deleteModalCancelBtn.addEventListener('click', toggleDeleteModal);
+
+  deleteModalYesBtn.addEventListener('click', deleteMovie.bind(null, movieId));
+};
+
+const renderNewMovie = (id, title, imageUrl, rating) => {
   const newMovie = document.createElement('li');
   newMovie.className = 'movie-element';
   newMovie.innerHTML = `
@@ -31,6 +65,8 @@ const renderNewMovie = (title, imageUrl, rating) => {
             <p>${rating}/5 Stars</p>
         </div>
     `;
+  // Delete listner
+  newMovie.addEventListener('click', deleteMovieHandler.bind(null, id));
   const movieListEl = document.getElementById('movie-list');
   movieListEl.appendChild(newMovie);
 };
@@ -73,15 +109,23 @@ const modalAddMovieBtnHandler = () => {
   }
 
   const movie = {
+    id: crypto.randomUUID(),
     title: titleValue,
     imageUrl: imgUrlValue,
     rating: ratingValue,
   };
 
+  console.dir(movie);
+
   movies.push(movie);
   console.log(movies);
   toggleMovieModal();
-  renderNewMovie(movie.title, movie.imageUrl, movie.rating);
+  renderNewMovie(
+    movie.id.toString(),
+    movie.title,
+    movie.imageUrl,
+    movie.rating
+  );
   updateEntryText();
 };
 
