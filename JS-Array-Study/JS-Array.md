@@ -1,9 +1,3 @@
-# TIL 2024-01-14
-
-## 🤿 [학습 키워드]
-
-- \-JS
-
 ## ⭐ [학습 카테고리]
 
 #### \* [Array.from()](#arrayfrom)
@@ -243,3 +237,30 @@ console.log(newPersons[0].age); // 24
 ```
 
 > map으로 지정된 객체 배열의 모든 요소를 분해하여 새로운 객체배열을 만들면, 해당 값들은 기존 메모리를 참조하는 것이 아닌, 새로운 메모리주소를 할당하여, 완전히 다른 객체배열을 생성할 수 있다.
+
+### \* Map & Set
+
+- Set
+
+  > The Set object lets you store unique values of any type, whether primitive values or object references.
+
+- Map
+
+### \* Set.prototype.entries()
+
+> entries() 메소드는 Set 객체의 각각의 요소를 삽입순서대로 [값, 값]의 형태로 가진 배열의 새로운 Iterator 객체를 반환합니다. Set객체에는 Map객체의 key가 없습니다. 그러나, Map 객체의 API와 비슷하게 유지하기 위해, 각각의 "요소"는 "키"와 "값" 자리에 같은 값을 가지게 됩니다. 결과적으로 [값, 값] 형태의 배열이 반환되게 됩니다.
+
+```js
+const sets = new Set(['Hi', 'From', 'Seoul']);
+// set 데이터는 일반 배열과 사용하는 메써드가 다름
+sets.add('me!'); // 요소 추가
+
+if (sets.has('Hi')) {
+  //요소 확인
+  sets.delete('Hi'); //요소 삭제
+}
+
+for (const entry of sets.entries()) {
+  console.log(entry[0]); // From, Seoul, me!
+}
+```
