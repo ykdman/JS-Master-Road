@@ -141,16 +141,24 @@
 //  */
 // App.init();
 class DOMHelper {
+  /**
+   *
+   * @description 인수 Element를 Clone 하여 할당된 이벤트 리스너들을 모두 제거한 복제본을 재할당하는 함수
+   */
   static clearEventListeners(element) {
     const clonedElement = element.cloneNode(true);
     element.replaceWith(clonedElement);
     return clonedElement;
   }
 
+  /**
+   * @description Target Element를 새로운 부모 노드의 자식으로 추가하는 함수
+   */
   static moveElement(elementId, newDestinationSelector) {
     const element = document.getElementById(elementId);
     const destinationElement = document.querySelector(newDestinationSelector);
     destinationElement.append(element);
+    element.scrollIntoView({ behavior: 'smooth' }); // scrollIntoView()가 호출 된 요소가 사용자에게 표시되도록 요소의 상위 컨테이너를 스크롤합니다.
   }
 }
 
@@ -161,6 +169,7 @@ class Component {
     } else {
       this.hostElement = document.body;
     }
+
     this.insertBefore = insertBefore;
   }
 
@@ -180,9 +189,10 @@ class Component {
 }
 
 class Tooltip extends Component {
-  constructor(closeNotifierFunction) {
-    super();
+  constructor(closeNotifierFunction, tooltipText, hostElementID) {
+    super(hostElementID);
     this.closeNotifier = closeNotifierFunction;
+    this.text = tooltipText;
     this.create();
   }
 
@@ -194,7 +204,25 @@ class Tooltip extends Component {
   create() {
     const tooltipElement = document.createElement('div');
     tooltipElement.className = 'card';
-    tooltipElement.textContent = 'DUMMY!';
+    const tooltipTemplate = document.getElementById('tooltip');
+    const tooltipBody = document.importNode(tooltipTemplate.content, true);
+    tooltipBody.querySelector('p').textContent = this.text;
+    tooltipElement.append(tooltipBody);
+
+    const hostElPosLeft = this.hostElement.offsetLeft;
+    const hostElPosTop = this.hostElement.offsetTop;
+    const hostElPosHeight = this.hostElement.offsetHeight;
+    const parentElementScrolling = this.hostElement.parentElement.scrollTop; // Project ul에서 얼마나 스크롤 했는지를 출력
+
+    const toolTipPosX = hostElPosLeft + 20; // [ px ]
+    const toolTipPosY =
+      hostElPosTop + hostElPosHeight - parentElementScrolling - 10;
+
+    //toolTip Styling
+    tooltipElement.style.position = 'absolute';
+    tooltipElement.style.left = toolTipPosX + 'px';
+    tooltipElement.style.top = toolTipPosY + 'px';
+
     tooltipElement.addEventListener('click', this.closeTooltip);
     this.element = tooltipElement;
   }
@@ -214,9 +242,15 @@ class ProjectItem {
     if (this.hasActiveTooltip) {
       return;
     }
-    const tooltip = new Tooltip(() => {
-      this.hasActiveTooltip = false;
-    });
+    const projectItemElement = document.getElementById(this.id);
+    const toolTipText = projectItemElement.dataset.extraInfo;
+    const tooltip = new Tooltip(
+      () => {
+        this.hasActiveTooltip = false;
+      },
+      toolTipText,
+      this.id
+    );
     tooltip.attach();
     this.hasActiveTooltip = true;
   }
@@ -226,7 +260,7 @@ class ProjectItem {
     const moreInfoBtn = projectItemElement.querySelector(
       'button:first-of-type'
     );
-    moreInfoBtn.addEventListener('click', this.showMoreInfoHandler);
+    moreInfoBtn.addEventListener('click', this.showMoreInfoHandler.bind(this));
   }
 
   connectSwitchButton(type) {
